@@ -1,6 +1,6 @@
 import unittest
 
-from src.blocks.blocks import markdown_to_blocks
+from src.blocks.blocks import BlockType, block_to_block_type, markdown_to_blocks
 
 
 class MyTestCase(unittest.TestCase):
@@ -52,6 +52,54 @@ This is the same paragraph on a new line
         self.assertEqual(
             markdown_to_blocks("# Heading\n\n> Quote\n\n- First\n- Second\n\n```\ncode\n```"),
             ["# Heading", "> Quote", "- First\n- Second", "```\ncode\n```"],
+        )
+
+
+class TestBlockToBlockType(unittest.TestCase):
+    def test_headings(self):
+        for level in range(1, 7):
+            block = f"{'#' * level} Heading"
+            with self.subTest(block=block):
+                self.assertEqual(block_to_block_type(block), BlockType.HEADING)
+
+    def test_heading_requires_a_space(self):
+        self.assertEqual(block_to_block_type("#Heading"), BlockType.PARAGRAPH)
+
+    def test_code_block(self):
+        block = "```\nprint('hello')\n```"
+        self.assertEqual(block_to_block_type(block), BlockType.CODE)
+
+    def test_code_block_must_open_on_its_own_line_and_close(self):
+        self.assertEqual(block_to_block_type("```code```"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("```\ncode"), BlockType.PARAGRAPH)
+
+    def test_quote(self):
+        block = "> First line\n> Second line"
+        self.assertEqual(block_to_block_type(block), BlockType.QUOTE)
+
+    def test_quote_requires_every_line_to_start_with_gt(self):
+        block = "> First line\nSecond line"
+        self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
+
+    def test_unordered_list(self):
+        block = "- First\n- Second"
+        self.assertEqual(block_to_block_type(block), BlockType.UNORDERED_LIST)
+
+    def test_unordered_list_requires_a_space_after_the_dash(self):
+        self.assertEqual(block_to_block_type("-First\n- Second"), BlockType.PARAGRAPH)
+
+    def test_ordered_list(self):
+        block = "1. First\n2. Second\n3. Third"
+        self.assertEqual(block_to_block_type(block), BlockType.ORDERED_LIST)
+
+    def test_ordered_list_must_start_at_one_and_increment(self):
+        self.assertEqual(block_to_block_type("2. First\n3. Second"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("1. First\n3. Third"), BlockType.PARAGRAPH)
+
+    def test_paragraph(self):
+        self.assertEqual(
+            block_to_block_type("Just a paragraph\nwith two lines"),
+            BlockType.PARAGRAPH,
         )
 
 
