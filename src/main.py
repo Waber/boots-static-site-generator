@@ -1,9 +1,15 @@
-from textnode import TextNode, TextType
+import os
+import shutil
+
+from copy_static import copy_static
 
 
 def main():
-    dummy = TextNode("Dummy dude", TextType.LINK, "https://www.boot.dev")
-    print(dummy)
+    public = "public"
+    if os.path.exists(public):
+        shutil.rmtree(public)
+    os.mkdir(public)
+    copy_static("static", public)
 
 if __name__ == '__main__':
     main()
