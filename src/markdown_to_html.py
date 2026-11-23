@@ -1,6 +1,5 @@
 from src.blocks import markdown_to_blocks, block_to_block_type, BlockType
 from src.htmlnode import HTMLNode
-from src.leafnode import LeafNode
 from src.parentnode import ParentNode
 from src.splitNode import text_to_textnodes
 from src.textnode import text_node_to_html_node, TextNode, TextType
